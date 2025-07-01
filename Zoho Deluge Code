@@ -1,3 +1,53 @@
+
+if(input.ID != 0)
+{
+	lastRecord = Quotation_Register[ID != 0] sort by ID desc;
+	if(lastRecord.count() > 0)
+	{
+		lastInquiryNumber = lastRecord.Quote;
+		// Ensure lastInquiryNumber is not empty or null before processing
+		if(lastInquiryNumber != null && lastInquiryNumber != "")
+		{
+			// Extract the numeric part from the last inquiry number
+			lastNumberPart = lastInquiryNumber.substring(lastInquiryNumber.length() - 3).toNumber();
+			// Increment the number part
+			nextNumberPart = (lastNumberPart + 1).toText();
+			// Manually pad with zeros if the number is less than 3 digits
+			if(nextNumberPart.length() < 4)
+			{
+				// Add zeros to the left to make it 3 digits
+				nextNumberPart = "0".repeat(4 - nextNumberPart.length()) + nextNumberPart;
+			}
+		}
+		else
+		{
+			// If lastInquiryNumber is invalid, start from 001
+			nextNumberPart = "0001";
+		}
+		// Get the current month and last two digits of the year
+		currentDate = zoho.currentdate;
+		currentMonth = currentDate.toString("MM");
+		currentYear = currentDate.toString("yy");
+		// Generate the new SO_No
+		nextInquiryNumber = "MESA" + currentYear + currentMonth + "-" + nextNumberPart;
+	}
+	else
+	{
+		currentDate = zoho.currentdate;
+		currentMonth = currentDate.toString("MM");
+		currentYear = currentDate.toString("yy");
+		nextInquiryNumber = "MESA" + currentYear + currentMonth + "-" + "0001";
+	}
+	// Set the SO_No field
+	input.Quote = nextInquiryNumber;
+	disable Quote;
+	// Disable the SO_No field after setting it
+}
+
+
+
+
+
 // data copy from one form into another also subform data from one form into another form of subform 
 
 if(input.Sales_Order_Type == "Spares")
