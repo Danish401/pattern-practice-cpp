@@ -1,3 +1,29 @@
+// data copy from one form into another also subform data from one form into another form of subform 
+
+if(input.Sales_Order_Type == "Spares")
+{
+	itemsList = Collection();
+	for each  soItem in input.Sales_Order_Item
+	{
+		row = Material_Request.Materials();
+		row.Item_Name=soItem.Item;
+		row.Item_Description=soItem.Item_Description;
+		row.Issue_Qty=soItem.Qty;
+		row.Article_No=soItem.AG_Article_Number;
+		itemsList.insert(row);
+	}
+	mr = insert into Material_Request
+	[
+		Sales_Order_Number=input.SO_No
+		PO_Ref=input.Customer_PO_Number
+		Customer=input.Customer_Name
+		Materials=itemsList
+		Added_User=zoho.loginuser
+	];
+	info "Material Request with subform created.";
+}
+
+
 
 // Data fetch from zoho books into zoho creator report 
 
