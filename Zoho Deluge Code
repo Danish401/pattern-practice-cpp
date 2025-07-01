@@ -1,0 +1,64 @@
+
+// Data fetch from zoho books into zoho creator report 
+
+string getProds()
+{
+	organizationID = "804843409";
+	pageList = {1,2};
+
+	for each ele in pageList
+	{
+// 		info "Fetching Page: " + ele;
+
+		resp = invokeurl
+		[
+			url : "https://www.zohoapis.com/books/v3/items?page=" + ele + "&per_page=1000&organization_id=" + organizationID
+			type : GET
+			connection : "zbooks"
+		];
+
+		itemsList = resp.get("items");
+// 		info itemsList.size();
+		for each fullItem in itemsList
+        {
+			exist = Inventory[Item_Id1 == fullItem.get("item_id")];
+				if(exist.count() > 0)
+				{}
+				else 
+                {
+                
+			itemid = fullItem.get("item_id");
+// 			name = ifnull(fullItem.get("name"), "");
+			rate = ifnull(fullItem.get("rate"), 0);
+			status = ifnull(fullItem.get("status"), "");
+			qty = ifnull(fullItem.get("available_stock"), 0).toDecimal();
+			sku = ifnull(fullItem.get("sku"), "");
+			unit = ifnull(fullItem.get("unit"), "");
+			desc = ifnull(fullItem.get("description"), "");
+			articleNum = ifnull(fullItem.get("cf_ag_article_number"), "");
+			
+			A = insert into Inventory
+			[
+				Added_User = zoho.loginuser
+				Item_Id1 = itemid
+				Status = status
+				Ag_Article_Number = articleNum
+				Item_ID = desc
+				Qty = qty
+				Price = rate
+				SKU = sku
+				Unit = unit
+				Is_Combo_Product = "NO"
+			];
+			info A;
+        }
+		}
+
+		if(resp.get("page_context").get("has_more_page") != true)
+		{
+			break;
+		}
+	}
+
+	return "Sync completed";
+}
