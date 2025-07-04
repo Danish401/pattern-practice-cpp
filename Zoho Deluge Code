@@ -1,3 +1,98 @@
+// data send from zoho creator to zoho book inside purchase order module 
+CompanyName = input.Company_Name;
+custdata = Add_Vendor[ID == CompanyName];
+companyid = custdata.Vendor_ID;
+mapp = Map();
+arraylist = list();
+for each  ele in input.Item_Details
+{
+	lineitemmap = Map();
+	lineitemmap.put("item_id",ele.Item_Description.Item_ID);
+	lineitemmap.put("name",ele.Item_Code);
+	lineitemmap.put("description",ele.Item_Description.Product_Name);
+	lineitemmap.put("rate",ele.Rate);
+	lineitemmap.put("quantity",ele.Quantity);
+	lineitemmap.put("item_total",ele.Amount);
+	arraylist.add(lineitemmap);
+}
+// Handle delivery address
+if(input.Delivery_Address == "Warehouses")
+{
+	wareh = Warehouse_Master[Warehouse_Name == input.Select_Warehouse.Warehouse_Name];
+	mapp.put("warehouse_id",wareh.Warehouse_ID);
+	mapp.put("delivery_org_address_id",wareh.Warehouse_ID);
+}
+else if(input.Delivery_Address == "Customers")
+{
+	cust = Add_Customer[Customer_Name == input.Select_Customer.Customer_Name];
+	mapp.put("delivery_customer_id",cust.Customer_ID);
+}
+// Add basic PO info
+mapp.put("vendor_id",companyid);
+mapp.put("delivery_date",input.Delivery_On);
+mapp.put("payment_terms_label",input.Payment_Terms);
+mapp.put("reference_number",input.Our_Ref);
+mapp.put("address",input.Address.address_line_1);
+mapp.put("street2",input.Address.address_line_2);
+mapp.put("city",input.Address.district_city);
+mapp.put("attention",input.Select_Warehouse.Warehouse_Name);
+mapp.put("state",input.Address.state_province);
+mapp.put("zip",input.Address.postal_Code);
+mapp.put("country",input.Address.country);
+mapp.put("fax",input.Fax);
+mapp.put("phone",input.Telephone);
+mapp.put("line_items",arraylist);
+mapp.put("date",input.Date_field);
+mapp.put("purchaseorder_number",input.PO_No);
+// ✅ Add custom fields for Discount, VAT, Total, Grand Total
+customFieldsList = List();
+// Discount Value
+cf_discount = Map();
+cf_discount.put("api_name","cf_discount_value");
+cf_discount.put("value",input.Discount);
+customFieldsList.add(cf_discount);
+// VAT Amount (5%)
+cf_vat = Map();
+cf_vat.put("api_name","cf_vat_amount_5");
+cf_vat.put("value",input.VAT_Amount_5);
+customFieldsList.add(cf_vat);
+// Total
+cf_total = Map();
+cf_total.put("api_name","cf_total_amount");
+cf_total.put("value",input.Total);
+customFieldsList.add(cf_total);
+// Grand Total
+cf_grand = Map();
+cf_grand.put("api_name","cf_grand_total_amount");
+cf_grand.put("value",input.Grand_Total);
+customFieldsList.add(cf_grand);
+// Attach custom fields to request map
+mapp.put("custom_fields",customFieldsList);
+// Log and create PO
+info mapp;
+createPO_Book = zoho.books.createRecord("purchaseorders","859704582",mapp,"books_connection");
+info createPO_Book;
+purchase = createPO_Book.get("purchaseorder");
+// ✅ Assign PO ID back to Creator
+if(purchase != null && purchase.get("purchaseorder_id") != null)
+{
+	input.PO_ID = purchase.get("purchaseorder_id").toLong();
+	info "✅ Purchase Order Created Successfully. PO ID: " + input.PO_ID;
+}
+else
+{
+	info "❌ Failed to create PO. Response: " + createPO_Book.toString();
+}
+
+
+
+
+
+
+
+
+
+
 
 if(input.ID != 0)
 {
