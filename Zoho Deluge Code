@@ -1,4 +1,4 @@
-// data send from zoho creator to zoho book inside purchase order module 
+// data send from zoho creator to zoho book inside purchase order module we can create custom field into purchase order under setting of zoho book search purchase order 
 CompanyName = input.Company_Name;
 custdata = Add_Vendor[ID == CompanyName];
 companyid = custdata.Vendor_ID;
