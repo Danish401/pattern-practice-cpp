@@ -1,3 +1,44 @@
+order_total = 0;
+input.Item_Details.clear();
+// Clear the subform first
+if(input.Purchase_Order != null)
+{
+	salesrec = Purchase_Order[ID == input.Purchase_Order];
+	packet = Collection();
+	if(salesrec != null)
+	{
+		for each  abc in salesrec.Item_Detail
+		{
+			
+			row1 = Inward_Material_GRI.Item_Details();
+			row1.SKU=abc.SKU;
+			data=Inventory[ID==abc.SKU];
+			row1.Item_Description =data.Item_ID;
+			row1.Quantity_Ordered=ifnull(abc.Qty,0);
+			packet.insert(row1);
+		}
+		if(packet.size() > 0)
+		{
+			input.Item_Details.insert(packet);
+			// insert into subform
+		}
+	}
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 //sync data from zoho inventory into zoho creator from item module 
 string getProds()
 {
